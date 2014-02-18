@@ -3,5 +3,6 @@
 translateModel("IDEAS.Thermal.Components.Examples.Tabs_Disretized");
 // experiment StopTime=86400
 simulateModel("IDEAS.Thermal.Components.Examples.Tabs_Disretized", stopTime=86400, method="dassl", resultFile="Tabs_Disretized");
+
 plot(y={"tabs.tabs[2].port_a.T", "volumeFlow1.T"}, colors={{0,0,255}, {255,0,0}});
 
