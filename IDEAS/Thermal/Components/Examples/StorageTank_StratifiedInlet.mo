@@ -7,7 +7,7 @@ model StorageTank_StratifiedInlet
   parameter Thermal.Data.Interfaces.Medium medium=Data.Media.Water()
     "Medium in the tank";
   //parameter Real[5] TInitial =
-
+  Modelica.SIunits.Enthalpy h_tot(start=0) "Conservation of energy";
   Thermal.Components.Storage.StorageTank storageTank(
     medium=medium,
     nbrNodes=5,
@@ -39,6 +39,7 @@ model StorageTank_StratifiedInlet
   Modelica.Blocks.Sources.Pulse pulse(period=400)
     annotation (Placement(transformation(extent={{-56,-68},{-36,-48}})));
 equation
+  der(h_tot) = heatedPipe.heatPort.Q_flow - (sum(der(storageTank.nodes.T)*storageTank.nodes.m)+ der(pump.T)*pump.m)*medium.cp;
   connect(storageTank.flowPort_b, pump.flowPort_a) annotation (Line(
       points={{8,-3.07692},{8,-12},{-14,-12}},
       color={255,0,0},
