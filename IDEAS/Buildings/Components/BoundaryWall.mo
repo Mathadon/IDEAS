@@ -48,8 +48,7 @@ model BoundaryWall "Opaque wall with optional prescribed heat flow rate or tempe
     annotation (Placement(transformation(extent={{-28,-40},{-8,-20}})));
   Fluid.Sources.MassFlowSource_T       boundary2(
     redeclare package Medium = Medium,
-    nPorts=1,
-    final m_flow=1e-10)
+    nPorts=1, final m_flow = 0)
     if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.TwoPorts
     annotation (Placement(transformation(extent={{-28,-76},{-8,-56}})));
 protected
