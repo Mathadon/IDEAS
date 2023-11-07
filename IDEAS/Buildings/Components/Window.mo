@@ -27,13 +27,12 @@ model Window "Multipane window"
       checkCoatings=glazing.checkLowPerformanceGlazing),
     setArea(A=A*nWin),
     hRef_a=if IDEAS.Utilities.Math.Functions.isAngle(inc, 0) then hzone_a else (hzone_a - hVertical)/2,
-    hVertical=if IDEAS.Utilities.Math.Functions.isAngle(inc, Modelica.Constants.pi) or IDEAS.Utilities.Math.Functions.isAngle(inc, 0) then 0 else hWin,
-    q50_zone(v50_surf=q50_internal*A),
-    crackOrOperableDoor(
-          openDoorOnePort=false,
-          h_a1=(Habs - sim.Hpres) + 0.25*hVertical,
-          h_b2=(Habs - sim.Hpres) - 0.25*hVertical,
-          useDoor = use_operable_window));
+    hVertical=if IDEAS.Utilities.Math.Functions.isAngle(inc, Modelica.Constants.pi) or IDEAS.Utilities.Math.Functions.isAngle(inc, 0) then 0 else min(hzone_a, sqrt(A)),
+    q50_zone(v50_surf=q50_internal*A_glass),
+    res1(A=if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.TwoPorts then A_glass/2 else A_glass,
+          h_a=(Habs - sim.Hpres) + 0.25*hVertical),
+    res2(A=A_glass/2,
+          h_a=(Habs - sim.Hpres) - 0.25*hVertical));
   parameter Boolean linExtCon=sim.linExtCon
     "= true, if exterior convective heat transfer should be linearised (uses average wind speed)"
     annotation(Dialog(tab="Convection"));
@@ -334,20 +333,14 @@ equation
                                                                     color = {0, 0, 127}));
   connect(trickleVent.y, y_trickleVent) annotation (
     Line(points = {{30, -92}, {30, -120}}, color = {0, 0, 127}));
-  if sim.interZonalAirFlowType <> IDEAS.BoundaryConditions.Types.InterZonalAirFlow.None then
-    connect(crackOrOperableDoor.port_a1, outsideAir.ports[1]) annotation (
-    Line(points={{20,-46},{16,-46},{16,-80},{-20,-80}},          color = {0, 127, 255}));
-  end if;
-  if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.TwoPorts then
-    connect(crackOrOperableDoor.port_b2, outsideAir.ports[2]) annotation (
-    Line(points={{20,-58},{16,-58},{16,-80},{-20,-80}},          color = {0, 127, 255}));
-  end if;
+  connect(res1.port_a, outsideAir.ports[1]) annotation (
+    Line(points={{20,-36},{16,-36},{16,-90},{-20,-90}},          color = {0, 127, 255}));
+  connect(res2.port_a, outsideAir.ports[2]) annotation (
+    Line(points = {{20, -60}, {16, -60}, {16, -90}, {-20, -90}}, color = {0, 127, 255}));
  connect(trickleVent.port_a, outsideAir.ports[if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.TwoPorts then 3 else 2]) annotation (
     Line(points = {{20, -80}, {-20, -80}}, color = {0, 127, 255}));
  connect(y_window_trunc.y, solWin.y) annotation (
     Line(points={{-10,-79},{-10,-58}},      color = {0, 0, 127}));
- connect(y_window_trunc.y, crackOrOperableDoor.y) annotation (
-    Line(points={{-10,-79},{-10,-68},{19,-68},{19,-52}},          color = {0, 0, 127}));
   annotation (
     Icon(coordinateSystem(preserveAspectRatio=true, extent={{-60,-100},{60,100}}),
         graphics={Rectangle(fillColor = {255, 255, 255}, pattern = LinePattern.None,

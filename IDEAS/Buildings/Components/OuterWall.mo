@@ -5,9 +5,8 @@ model OuterWall "Opaque building envelope construction"
      final nWin=1,
      dT_nominal_a=-3,
      QTra_design(fixed=false),
-    crackOrOperableDoor(
-      h_a1=(Habs - sim.Hpres) + 0.25*hVertical,
-      h_b2=(Habs - sim.Hpres) - 0.25*hVertical));
+    res1(h_a=(Habs - sim.Hpres) + 0.25*hVertical),
+    res2(h_a=(Habs - sim.Hpres) - 0.25*hVertical));
 
   parameter Boolean linExtCon=sim.linExtCon
     "= true, if exterior convective heat transfer should be linearised (uses average wind speed)"
@@ -192,15 +191,12 @@ equation
   connect(shaType.HShaGroDifTil, solDif.u2) annotation (Line(points={{-64.5,36},
           {-56,36},{-56,1.6},{-54.8,1.6}}, color={0,0,127}));
   connect(radSolData.hForcedConExt, extCon.hForcedConExt) annotation (Line(points={{-79.4,
-          -8.2},{-46,-8.2},{-46,-34},{-16,-34},{-16,-27},{-22,-27}},color={0,0,127}));
-  if sim.interZonalAirFlowType <> IDEAS.BoundaryConditions.Types.InterZonalAirFlow.None then
-    connect(crackOrOperableDoor.port_a1, outsideAir.ports[1]) annotation (Line(points={{20,-36},{
+          -8.2},{-46,-8.2},{-46,-34},{-16,-34},{-16,-22},{-44,-22}},color={0,0,127}));
+  connect(res1.port_a, outsideAir.ports[1]) annotation (Line(points={{20,-36},{
           16,-36},{16,-50},{-80,-50}},color={0,127,255}));
-  end if;
-  if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.TwoPorts then
-    connect(crackOrOperableDoor.port_b2, outsideAir.ports[2]) annotation (Line(points={{20,-60},{16,
+
+  connect(res2.port_a, outsideAir.ports[2]) annotation (Line(points={{20,-60},{16,
           -60},{16,-50},{-80,-50}}, color={0,127,255}));
-  end if;
   annotation (
     Icon(coordinateSystem(preserveAspectRatio=true, extent={{-60,-100},{60,100}}),
         graphics={
