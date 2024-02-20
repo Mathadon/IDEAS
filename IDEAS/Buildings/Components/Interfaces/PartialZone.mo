@@ -198,7 +198,7 @@ protected
   parameter Integer n_ports_interzonal=
     if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.None then 0
     elseif sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.OnePort then nSurf
-    else nSurf*2
+    else nSurf*3
       "Number of fluid ports for interzonal air flow modelling"
       annotation(Evaluate=true);
   IDEAS.Buildings.Components.Interfaces.ZoneBus[nSurf] propsBusInt(
@@ -259,7 +259,7 @@ model Setq50 "q50 computation for zones"
     "custom assigned v50 value, else zero";
 
   parameter Modelica.Units.SI.Length hZone "Zone height: distance between floor and ceiling";
-  parameter Modelica.Units.SI.Length hFloor = 0  "Absolute height of zone floor";
+  parameter Modelica.Units.SI.Length hFloor = 0  "Absolute height of zone floor. Relative to the height at which the atmospheric pressure is defined.";
 
   Modelica.Blocks.Interfaces.RealInput v50_surf[nSurf]
    annotation (Placement(transformation(extent={{-126,28},{-86,68}})));
@@ -500,6 +500,9 @@ end for;
   if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.TwoPorts then
     connect(airModel.ports[interzonalAirFlow.nPorts + 1 + nSurf:interzonalAirFlow.nPorts + nSurf*2], propsBusInt[1:nSurf].port_2) annotation (Line(points={{-30,
           40},{-30,39.9},{-80.1,39.9}}, color={0,127,255}));
+    connect(airModel.ports[interzonalAirFlow.nPorts + 1 + nSurf*2:interzonalAirFlow.nPorts + nSurf*3], propsBusInt[1:nSurf].port_3) annotation (Line(points={{-30,
+          40},{-30,39.9},{-80.1,39.9}}, color={0,127,255}));
+
   end if;
   connect(setq50.Area, propsBusInt.area) annotation (Line(points={{-60.6,-88.6},
           {-60.6,-89.3},{-80.1,-89.3},{-80.1,39.9}}, color={0,0,127}));
@@ -547,6 +550,10 @@ end for;
 <p>See extending models.</p>
 </html>", revisions="<html>
 <ul>
+<li>
+Februari 18, 2024, by Filip Jorissen:<br/>
+Modifications for supporting trickle vents and interzonal airflow.
+</li>
 <li>
 July 25, 2023, by Filip Jorissen:<br/>
 Added conditional inputs for injecting water or CO2.

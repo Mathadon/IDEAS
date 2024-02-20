@@ -11,14 +11,16 @@ model InternalWall "interior opaque wall between two zones"
     final QTra_design = U_value*A*(TRef_a - TRef_b),
     q50_zone(v50_surf = 0),
     crackOrOperableDoor(
+      h_a1=-0.5*hzone_b + 0.75*hVertical + hRelSurfBot_b,
+      h_b2=-0.5*hzone_b + 0.25*hVertical + hRelSurfBot_b,
+      hA=0.5*hzone_b - hRelSurfBot_b - hRelOpeBot_b,
+      hB=0.5*hzone_a - hRelSurfBot_a - hRelOpeBot_a,
       openDoorOnePort=true,
       useDoor=hasCavity,
       use_y=use_y_doo,
       wOpe=w,
       hOpe=h,
-      CDOpe=CD,
-      h_a1=-0.5*hzone_b + 0.25*hVertical + hRef_b,
-      h_b2=-0.5*hzone_b + 0.75*hVertical + hRef_b));
+      CDOpe=CD));
   //using custom q50 since this model is not an external component
   parameter Boolean linIntCon_b = sim.linIntCon 
     "= true, if convective heat transfer should be linearised" annotation(
@@ -39,6 +41,9 @@ model InternalWall "interior opaque wall between two zones"
   parameter Modelica.Units.SI.Length w = 1
     "Width of (rectangular) cavity in wall"
     annotation(Dialog(enable=hasCavity,group="Cavity or open door"));
+
+  parameter  Modelica.Units.SI.Length hRelOpeBot_a=0 "Vertical distance at propsbus a between the bottom of the surface that contains an (operable) opening and the bottom of the opening" annotation(Dialog(group="Cavity or open door"));
+  parameter  Modelica.Units.SI.Length hRelOpeBot_b=0 "Vertical distance at propsbus b between the bottom of the surface that contains an (operable) opening and the bottom of the opening" annotation(Dialog(group="Cavity or open door"));
   parameter Modelica.Units.SI.Acceleration g = Modelica.Constants.g_n
     "Gravity, for computation of buoyancy"
     annotation(Dialog(enable=hasCavity,group="Cavity or open door",tab="Advanced"));
@@ -75,13 +80,29 @@ model InternalWall "interior opaque wall between two zones"
     annotation(Dialog(group="Cavity or open door",tab="Advanced"));
   final parameter Real hzone_b(fixed=false);
   final parameter Real hfloor_b(fixed=false);
-  parameter Real hRef_b=if IDEAS.Utilities.Math.Functions.isAngle(inc, Modelica.Constants.pi) then hzone_b else 0 
+
+
+  parameter Modelica.Units.SI.Length hRelSurfBot_b=if
+      IDEAS.Utilities.Math.Functions.isAngle(inc, IDEAS.Types.Tilt.Floor)
+       then hzone_b else 0
     "Height above the zone floor at propsbus_b. Height where the surface starts. e.g. 0 for walls at floor level and floors.  ";
   Modelica.Blocks.Interfaces.RealInput y_doo(min = 0, max = 1) if use_y_doo and useDooOpe 
     "Control input for the door" annotation(
     Placement(visible = true, transformation(origin = {-80, 90}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-64, 88}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
+  IDEAS.Fluid.Sources.MassFlowSource_T boundary3_a(
+    redeclare package Medium = Medium, 
+    m_flow = 1e-10, 
+    nPorts = 1)  if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.TwoPorts
+     "Boundary for bus a" annotation(
+    Placement(transformation(origin = {48, -4}, extent = {{-28, -76}, {-8, -56}})));
+  IDEAS.Fluid.Sources.MassFlowSource_T boundary3_b(
+    redeclare package Medium = Medium, 
+    m_flow = 1e-10, 
+    nPorts = 1)  if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.TwoPorts 
+    "Boundary for bus b" annotation(
+    Placement(transformation(origin = {-48, -4}, extent = {{28, -76}, {8, -56}}, rotation = -0)));
 protected
-  parameter Real Ope_hvert = sin(inc)*h "Vertical opening height, height of the surface projected to the vertical, 0 for openings in horizontal floors and ceilings" annotation(
+  parameter Real Ope_hvert = sin(inc)*h "Vertical opening height, height of the surface projected to the vertical, 0 for openings in horizontal floors and ceilings" annotation (
     Dialog(enable=hasCavity,group="Cavity or open door"));
   final parameter Real U_value = 1/(1/8 + sum(constructionType.mats.R) + 1/8) "Wall U-value";
   constant Real r = 287 "Gas constant";
@@ -126,8 +147,8 @@ initial equation
   hfloor_b = propsBus_b.hfloor;
 equation
   connect(constOne.y, crackOrOperableDoor.y);
-//assert(IDEAS.Utilities.Math.Functions.isAngle(inc,0) and hfloor_a>hfloor_b, getInstanceName()+ "is a ceiling, but the floor of the zone at probsbus_b lies above the floor of zone at probsbus_a, this is probably a mistake",level=AssertionLevel.warning);
-//assert(IDEAS.Utilities.Math.Functions.isAngle(inc,Modelica.Constants.pi) and hfloor_a<hfloor_b, getInstanceName()+ "is a floor, but the floor of the zone at probsbus_b lies above the floor of zone at probsbus_a, this is probably a mistake",level=AssertionLevel.warning);
+//assert(IDEAS.Utilities.Math.Functions.isAngle(inc,0) and hAbs_floor_a>hfloor_b, getInstanceName()+ "is a ceiling, but the floor of the zone at probsbus_b lies above the floor of zone at probsbus_a, this is probably a mistake",level=AssertionLevel.warning);
+//assert(IDEAS.Utilities.Math.Functions.isAngle(inc,Modelica.Constants.pi) and hAbs_floor_a<hfloor_b, getInstanceName()+ "is a floor, but the floor of the zone at probsbus_b lies above the floor of zone at probsbus_a, this is probably a mistake",level=AssertionLevel.warning);
   assert(hasCavity == false or IDEAS.Utilities.Math.Functions.isAngle(incInt, IDEAS.Types.Tilt.Wall), "In " + getInstanceName() + ": Cavities are only supported for vertical walls, but inc=" + String(incInt) + ". The model is not accurate.", level = AssertionLevel.warning);
   connect(layMul.port_b, propsBus_b.surfRad) annotation(
     Line(points = {{-10, 0}, {-18, 0}, {-18, 20.1}, {-100.1, 20.1}}, color = {191, 0, 0}, smooth = Smooth.None));
@@ -167,6 +188,10 @@ equation
   end if;
   connect(y_doo, crackOrOperableDoor.y) annotation(
     Line(points = {{-80, 90}, {-52, 90}, {-52, -52}, {20, -52}}, color = {0, 0, 127}));
+  connect(boundary3_b.ports[1], propsBus_b.port_3) annotation(
+    Line(points = {{-40, -70}, {-52, -70}, {-52, 20}, {-100, 20}}, color = {0, 127, 255}));
+  connect(boundary3_a.ports[1], propsBusInt.port_3) annotation(
+    Line(points = {{40, -70}, {56, -70}, {56, 20}}, color = {0, 127, 255}));
   annotation(
     Icon(coordinateSystem(preserveAspectRatio = false, extent = {{-60, -100}, {60, 100}}), graphics = {Rectangle(fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{-52, -90}, {48, -70}}), Rectangle(fillColor = {255, 255, 255}, pattern = LinePattern.None, fillPattern = FillPattern.Solid, extent = {{-50, 80}, {50, 100}}), Rectangle(fillColor = {175, 175, 175}, pattern = LinePattern.None, fillPattern = FillPattern.Backward, extent = {{-10, 80}, {10, -70}}), Line(points = {{-50, 80}, {50, 80}}, color = {175, 175, 175}), Line(points = {{-50, -70}, {50, -70}}, color = {175, 175, 175}), Line(points = {{-50, -90}, {50, -90}}, color = {175, 175, 175}), Line(points = {{-50, 100}, {50, 100}}, color = {175, 175, 175}), Line(points = {{-10, 80}, {-10, -70}}, thickness = 0.5), Line(points = {{10, 80}, {10, -70}}, thickness = 0.5)}),
     Diagram(coordinateSystem(preserveAspectRatio = false, extent = {{-60, -100}, {60, 100}})),
@@ -193,6 +218,10 @@ We assume that the value of <code>A</code> excludes the surface area of the cavi
 </p>
 </html>", revisions = "<html>
 <ul>
+<li>
+Februari 18, 2024, by Filip Jorissen:<br/>
+Modifications for supporting trickle vents and interzonal airflow.
+</li>
 <li>
 July 9, 2023, by Filip Jorissen:<br/>
 Replaced door by operable door.

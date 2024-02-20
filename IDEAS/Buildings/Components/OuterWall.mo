@@ -4,10 +4,7 @@ model OuterWall "Opaque building envelope construction"
      setArea(A=A),
      final nWin=1,
      dT_nominal_a=-3,
-     QTra_design(fixed=false),
-    crackOrOperableDoor(
-      h_a1=(Habs - sim.Hpres) + 0.25*hVertical,
-      h_b2=(Habs - sim.Hpres) - 0.25*hVertical));
+     QTra_design(fixed=false));
 
   parameter Boolean linExtCon=sim.linExtCon
     "= true, if exterior convective heat transfer should be linearised (uses average wind speed)"
@@ -67,10 +64,14 @@ model OuterWall "Opaque building envelope construction"
   parameter Boolean use_custom_Cs = false
     "if checked, Cs will be used instead of the default related to the interzonal airflow type "
     annotation(Evaluate=true, choices(checkBox=true),Dialog(enable=true,tab="Airflow", group="Wind Pressure"));
+
+  parameter Boolean  use_sim_Cs =sim.use_sim_Cs "if checked, the default Cs of each surface in the building is sim.Cs"
+  annotation(choices(checkBox=true),Dialog(enable=not use_custom_Cs,tab="Airflow", group="Wind Pressure"));
+
   parameter Real Cs=sim.Cs
                        "Wind speed modifier"
     annotation (Dialog(enable=use_custom_Cs,tab="Airflow", group="Wind Pressure"));
-  final parameter Real Habs=hfloor_a + hRef_a + (hVertical/2)
+  final parameter Real Habs=hAbs_floor_a + hRelSurfBot_a + (hVertical/2)
     "Absolute height of the center of the surface for correcting the wind speed, used in TwoPort implementation"
     annotation (Dialog(tab="Airflow", group="Wind"));
 
@@ -107,16 +108,23 @@ protected
     final table=coeffsCp,
     final azi=aziInt,
     Cs=if not use_custom_Cs and sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.TwoPorts
-         then sim.Cs_coeff*(Habs^(2*sim.a))
-         elseif not use_custom_Cs
-           then sim.Cs
-           else Cs,
-    Habs=Habs,
+         and not use_sim_Cs then sim.Cs_coeff*(Habs^(2*sim.a)) elseif not
+        use_custom_Cs then sim.Cs else Cs,
+    Habs=if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.TwoPorts
+         then Habs else sim.HPres,
     nPorts=if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.OnePort
          then 1 else 2)
  if sim.interZonalAirFlowType <> IDEAS.BoundaryConditions.Types.InterZonalAirFlow.None
     "Outside air model"
     annotation (Placement(transformation(extent={{-100,-60},{-80,-40}})));
+    
+  IDEAS.Fluid.Sources.MassFlowSource_T boundary3(
+    redeclare package Medium = Medium, 
+    m_flow = 1e-10, 
+    nPorts = 1)  if sim.interZonalAirFlowType == IDEAS.BoundaryConditions.Types.InterZonalAirFlow.TwoPorts
+     "Boundary for bus a" annotation(
+    Placement(transformation(origin = {48, -4}, extent = {{-28, -76}, {-8, -56}})));
+
 initial equation
   QTra_design =U_value*A*(273.15 + 21 - Tdes.y);
 
@@ -201,6 +209,8 @@ equation
     connect(crackOrOperableDoor.port_b2, outsideAir.ports[2]) annotation (Line(points={{20,-60},{16,
           -60},{16,-50},{-80,-50}}, color={0,127,255}));
   end if;
+  connect(boundary3.ports[1], propsBusInt.port_3) annotation(
+    Line(points = {{40, -70}, {56, -70}, {56, 20}}, color = {0, 127, 255}));
   annotation (
     Icon(coordinateSystem(preserveAspectRatio=true, extent={{-60,-100},{60,100}}),
         graphics={
@@ -293,6 +303,10 @@ The correct shading parameter values should then be passed through the redeclara
 </p>
 </html>", revisions="<html>
 <ul>
+<li>
+Februari 18, 2024, by Filip Jorissen:<br/>
+Modifications for supporting trickle vents and interzonal airflow.
+</li>
 <li>
 July 18, 2022, by Filip Jorissen:<br/>
 Revised code for supporting new shading model.
