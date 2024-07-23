@@ -29,8 +29,13 @@ import buildingspy.development.regressiontest as rt
 tester=r.Tester()
 
 """ number of parallel processes started."""
+<<<<<<< HEAD
 #tester.setSinglePackage("IDEAS.Fluid.Geothermal")
 #tester.setNumberOfThreads(2)
+=======
+tester.setSinglePackage("IBPSA.Utilities.IO.Files")
+#tester.setNumberOfThreads(4)
+>>>>>>> 894_merge
 
 """ Html validation on/off"""
 # tester.validate_html = False

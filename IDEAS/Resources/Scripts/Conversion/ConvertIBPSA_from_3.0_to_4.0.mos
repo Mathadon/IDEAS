@@ -5,37 +5,49 @@ clear
 
 convertClear();
 
-// Conversion for https://github.com/ibpsa/modelica-ibpsa/issues/1542
-convertClass("IDEAS.Airflow.Multizone.MediumColumnDynamic", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Actuators.Valves.ThreeWayEqualPercentageLinear", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Actuators.Valves.ThreeWayLinear", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Actuators.Valves.ThreeWayTable", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.HeatExchangers.Radiators.RadiatorEN442_2", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Movers.FlowControlled_dp", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Movers.FlowControlled_m_flow", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Movers.SpeedControlled_Nrpm", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Movers.SpeedControlled_y", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Storage.Stratified", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Storage.StratifiedEnhanced", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Storage.StratifiedEnhancedInternalHex", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.HeatExchangers.EvaporatorCondenser", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.HeatExchangers.HeaterCooler_u", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Humidifiers.Humidifier_u", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Interfaces.TwoPortHeatMassExchanger", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.BaseClasses.InternalHEXOneUTube", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.BaseClasses.InternalHEXTwoUTube", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.HeatExchangers.PrescribedOutlet", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Interfaces.PrescribedOutlet", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.ThermalZones.ReducedOrder.RC.FourElements", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.ThermalZones.ReducedOrder.RC.OneElement", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.ThermalZones.ReducedOrder.RC.ThreeElements", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.ThermalZones.ReducedOrder.RC.TwoElements", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.HeatExchangers.ActiveBeams.Cooling", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.HeatExchangers.ActiveBeams.CoolingAndHeating", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.HeatExchangers.WetCoilEffectivenessNTU", {"massDynamics"}, fill("",0), true);
-convertClass("IDEAS.Fluid.Delays.DelayFirstOrder", {"massDynamics"}, fill("",0), true);
+// Conversion for https://github.com/ibpsa/modelica-ibpsa/issues/1885
+convertModifiers("IDEAS.Fluid.Geothermal.Borefields.BaseClasses.PartialBorefield",
+                {"dynFil"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.OneUTube",
+                {"dynFil"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.TwoUTube",
+                {"dynFil"}, fill("",0), true);
 
-convertClass("IDEAS.Fluid.Storage.StratifiedEnhancedInternalHex", {"massDynamicsHex"}, fill("",0), true);
+
+// Conversion for https://github.com/ibpsa/modelica-ibpsa/issues/1614
+convertModifiers("IDEAS.Fluid.Storage.ExpansionVessel", {"p"}, fill("",0), true);
+
+// Conversion for https://github.com/ibpsa/modelica-ibpsa/issues/1542
+convertModifiers("IDEAS.Airflow.Multizone.MediumColumnDynamic", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Actuators.Valves.ThreeWayEqualPercentageLinear", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Actuators.Valves.ThreeWayLinear", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Actuators.Valves.ThreeWayTable", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.HeatExchangers.Radiators.RadiatorEN442_2", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Movers.FlowControlled_dp", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Movers.FlowControlled_m_flow", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Movers.SpeedControlled_Nrpm", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Movers.SpeedControlled_y", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Storage.Stratified", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Storage.StratifiedEnhanced", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Storage.StratifiedEnhancedInternalHex", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.HeatExchangers.EvaporatorCondenser", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.HeatExchangers.HeaterCooler_u", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Humidifiers.Humidifier_u", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Interfaces.TwoPortHeatMassExchanger", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.BaseClasses.InternalHEXOneUTube", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.BaseClasses.InternalHEXTwoUTube", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.HeatExchangers.PrescribedOutlet", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Interfaces.PrescribedOutlet", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.ThermalZones.ReducedOrder.RC.FourElements", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.ThermalZones.ReducedOrder.RC.OneElement", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.ThermalZones.ReducedOrder.RC.ThreeElements", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.ThermalZones.ReducedOrder.RC.TwoElements", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.HeatExchangers.ActiveBeams.Cooling", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.HeatExchangers.ActiveBeams.CoolingAndHeating", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.HeatExchangers.WetCoilEffectivenessNTU", {"massDynamics"}, fill("",0), true);
+convertModifiers("IDEAS.Fluid.Delays.DelayFirstOrder", {"massDynamics"}, fill("",0), true);
+
+convertModifiers("IDEAS.Fluid.Storage.StratifiedEnhancedInternalHex", {"massDynamicsHex"}, fill("",0), true);
 
 convertElement("IDEAS.Fluid.Humidifiers.SteamHumidifier_X",
   "massDynamics",
