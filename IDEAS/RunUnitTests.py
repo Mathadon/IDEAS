@@ -29,7 +29,7 @@ import buildingspy.development.regressiontest as rt
 tester=r.Tester()
 
 """ number of parallel processes started."""
-tester.setSinglePackage("IBPSA.Airflow")
+tester.setSinglePackage("IBPSA.Utilities.IO.Files")
 #tester.setNumberOfThreads(4)
 
 """ Html validation on/off"""
